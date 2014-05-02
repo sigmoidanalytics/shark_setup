@@ -91,7 +91,7 @@ slave_file = open(spark_home + "/conf/slaves",'r')
 for slave in slave_file:
 	if not slave.startswith("#"):
 		print 'Rsycing with ' + slave
-		os.system("rsync -za " + os.getcwd() + " " + slave.replace("\n","") + ":" + os.getcwd())
+		os.system("rsync -za " + os.getcwd() + " " + slave.replace("\n","") + ":" + os.getcwd() + "/../")
 
 
 print 'Starting Shark Server'
