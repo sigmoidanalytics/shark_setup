@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ###
-# This script sets up a Spark cluster on Google Compute Engine
+# This script sets up Shark
 # SigmoidAnalytics.com
 ###
 
@@ -15,18 +15,19 @@ import subprocess
 
 shark_mem = raw_input("Enter Shark Memory [default 1g]: ")
 #hive_home = raw_input("Enter HIVE_HOME [default /root/sigmoid/hive-0.11.0-bin]: ")
-hive_home = raw_input("Enter HIVE_CONF_DIR [ /path/to/hive/conf]: ")
+#hive_home = raw_input("Enter HIVE_CONF_DIR [ /path/to/hive/conf]: ")
 spark_home = raw_input("Enter SPARK_HOME[ /path/to/spark/installation]: ")
 hadoop_home =""
 
 if len(shark_mem) == 0:
 	shark_mem = "1g"
-
+'''
+Not Required for Shark 0.9.1
 if len(hive_home) == 0:
 	#hive_home = "/root/sigmoid/hive-0.11.0-bin"
 	print 'Hive Conf should not be empty'
 	sys.exit(0)
-
+'''
 if len(spark_home) == 0:
 	print "Cannot Proceed without spark home. Exiting.."
 	sys.exit(0)
@@ -46,7 +47,7 @@ if len(hadoop_home) == 0:
 else:
 	print 'HADOOP_HOME Found:' + hadoop_home
 #hive_conf = hadoop_home + "/conf"
-hive_conf = hive_home
+#hive_conf = hive_home
 
 command = '/sbin/ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d" " -f1'
 output = os.popen(command).read()
@@ -71,7 +72,7 @@ os.system('echo "SPARK_JAVA_OPTS+=-Dspark.kryoserializer.buffer.mb=10 " >> conf/
 os.system('echo "export SPARK_JAVA_OPTS" >> conf/shark-env.sh')
 #os.system('echo "export HIVE_HOME='+ hive_home + '" >> conf/shark-env.sh')
 os.system('echo "export HADOOP_HOME=' +  hadoop_home + '" >> conf/shark-env.sh')
-os.system('echo "export HIVE_CONF_DIR=' + hive_conf +  '" >> conf/shark-env.sh')
+os.system('echo "export HIVE_CONF_DIR=' + os.getcwd() +  '/conf" >> conf/shark-env.sh')
 os.system('echo "export MASTER='+ master +'" >> conf/shark-env.sh')
 os.system('echo "export SPARK_HOME=' + spark_home + '" >> conf/shark-env.sh')
 os.system('echo "export TACHYON_MASTER=' + tach_master +  '" >> conf/shark-env.sh')
@@ -90,7 +91,7 @@ slave_file = open(spark_home + "/conf/slaves",'r')
 for slave in slave_file:
 	if not slave.startswith("#"):
 		print 'Rsycing with ' + slave
-		os.system("rsync -za " + os.getcwd() + " " + slave + ":")
+		os.system("rsync -za " + os.getcwd() + " " + slave.replace("\n","") + ":")
 
 
 print 'Starting Shark Server'
